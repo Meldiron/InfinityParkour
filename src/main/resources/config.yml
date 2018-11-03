@@ -1,0 +1,10 @@
+startPositions:
+  - x: 1500
+    y: 100
+    z: 0
+    world: 'world'
+parkourBlock: 'WHITE_TERRACOTTA'
+permissions:
+  openGui: 'infinityparkour.opengui'
+  leaveArena: 'infinityparkour.leavearena'
+  playGame: 'infinityparkour.play'

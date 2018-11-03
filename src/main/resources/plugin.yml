@@ -1,0 +1,12 @@
+name: InfinityplParkour
+version: 1.0.0
+main: com.meldiron.Main
+prefix: infinity-parkour
+api-version: 1.13
+authors: [Meldiron]
+description: Infinity parkour training plugin
+website: https://www.spigotmc.org/members/meldiron.92826/
+commands:
+  infinityparkour:
+    aliases: [infp]
+    description: Command to open Infinity Parkour GUI
