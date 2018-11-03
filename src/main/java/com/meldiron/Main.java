@@ -6,6 +6,7 @@ import com.meldiron.commands.InfinityParkourCmd;
 import com.meldiron.events.HungerEvent;
 import com.meldiron.events.LeaveEvent;
 import com.meldiron.events.MoveEvent;
+import com.meldiron.guis.InfinityParkourGUI;
 import com.meldiron.libs.FileManager;
 import com.meldiron.libs.GUIManager;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -19,8 +20,6 @@ public final class Main extends JavaPlugin {
     private static Main instance;
     private GameManager gm;
 
-    public FileManager.Config scoreboardConfig;
-
     public static Main getInstance() {
         return Main.instance;
     }
@@ -31,14 +30,12 @@ public final class Main extends JavaPlugin {
 
 
         fm = new FileManager(this);
-        scoreboardConfig = fm.getConfig("scoreboard.yml");
         fm.getConfig("config.yml").copyDefaults(true).save();
         this.config = fm.getConfig("config.yml").get();
         fm.getConfig("translations.yml").copyDefaults(true).save();
         this.langConfig = fm.getConfig("translations.yml").get();
-        scoreboardConfig.copyDefaults(true).save();
-        this.scoreboard = scoreboardConfig.get();
-
+        fm.getConfig("scoreboard.yml").copyDefaults(true).save();
+        this.scoreboard = fm.getConfig("scoreboard.yml").get();
 
         this.getCommand("infinityparkour").setExecutor(new InfinityParkourCmd());
         getServer().getPluginManager().registerEvents(new GUIManager(), this);
@@ -53,6 +50,14 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+    }
+
+    public void reloadConfigs() {
+        this.config = fm.reloadConfig("config.yml").get();
+        this.langConfig = fm.reloadConfig("translations.yml").get();
+        this.scoreboard = fm.reloadConfig("scoreboard.yml").get();
+
+        InfinityParkourGUI.refresh();
     }
 
     public static String formatedMsg(String msg) {
@@ -76,6 +81,6 @@ public final class Main extends JavaPlugin {
     }
 
     public YamlConfiguration getScoreboard() {
-        return scoreboard;
+        return this.scoreboard;
     }
 }

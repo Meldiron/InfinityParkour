@@ -93,8 +93,6 @@ public class ScoreboardManager {
         Integer total = Main.getInstance().getScoreboard().getConfigurationSection("players").getKeys(false).size();
         double percentile =  foundPlace * 100.0 / total;
 
-        System.out.println(foundPlace / index);
-
         HashMap<String, Object> stats = new HashMap<>();
 
         stats.put("score", foundScore);

@@ -105,7 +105,6 @@ public class GUIManager implements Listener {
 
     @EventHandler
     public void onClose(InventoryCloseEvent e){
-        System.out.println("Noww");
         Player player = (Player) e.getPlayer();
         UUID playerUUID = player.getUniqueId();
 

@@ -27,18 +27,19 @@ public class InfinityParkourGUI extends GUIManager {
     }
 
     public static void refresh() {
-        InfinityParkourGUI.instance.delete();
+        if(InfinityParkourGUI.instance != null) {
+            InfinityParkourGUI.instance.delete();
+        }
         InfinityParkourGUI.instance = new InfinityParkourGUI();
     }
 
 
     public InfinityParkourGUI() {
         super(3,  Main.getInstance().getLangConfig().getConfigurationSection("mainGui").getString("title"));
-        System.out.println(Main.getInstance().getLangConfig().getConfigurationSection("mainGui").getString("title"));
 
         ConfigurationSection lang = Main.getInstance().getLangConfig().getConfigurationSection("mainGui");
 
-        ItemStack glass = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
+        ItemStack glass = new ItemStack(Material.getMaterial(Main.getInstance().getLangConfig().getString("mainGui.fillItem")));
         ItemMeta glassMeta = glass.getItemMeta();
         glassMeta.setDisplayName(" ");
         glassMeta.setLore(new ArrayList<>());

@@ -1,5 +1,6 @@
 package com.meldiron;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -37,7 +38,17 @@ public class Game {
 
         ScoreboardManager.getInstance().updateScore(p, score);
 
+        if(Main.getInstance().getConfig().getBoolean("runFinishCommand") == true) {
+            String commandToRun = Main.getInstance().getConfig().getString("finishCommand");
 
+            String cmd = commandToRun.replace("{{playerName}}", p.getName()).replace("{{score}}", score.toString());
+
+            if(cmd.startsWith("/")) {
+                cmd = cmd.substring(1);
+            }
+
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+        }
     }
 
     public void addScore() {
@@ -62,7 +73,6 @@ public class Game {
     }
 
     public void spawnAtPos(Location loc) {
-        System.out.print(loc.getX() + ", " + loc.getY() + ", " + loc.getZ());
         if(block1 != null) {
             block1.getBlock().setType(Material.AIR);
         }

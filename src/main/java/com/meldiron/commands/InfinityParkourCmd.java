@@ -27,14 +27,23 @@ public class InfinityParkourCmd implements CommandExecutor {
             InfinityParkourGUI.getInstance().open(p);
 
         } else if(args.length == 1) {
-            String leavePermission = Main.getInstance().getConfig().getString("permissions.leaveArena");
-            if(!(p.hasPermission(leavePermission))) {
-                p.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.noPermissionLeave").replace("{{permissionName}}", leavePermission)));
-                return true;
-            }
-
             if(args[0].equalsIgnoreCase("leave")) {
+                String leavePermission = Main.getInstance().getConfig().getString("permissions.leaveArena");
+                if(!(p.hasPermission(leavePermission))) {
+                    p.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.noPermissionLeave").replace("{{permissionName}}", leavePermission)));
+                    return true;
+                }
+
                 Main.getInstance().getGm().leaveGame(p);
+            } else if(args[0].equalsIgnoreCase("reload")) {
+                String reloadPermission = Main.getInstance().getConfig().getString("permissions.reload");
+                if(!(p.hasPermission(reloadPermission))) {
+                    p.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.noPermissionReload").replace("{{permissionName}}", reloadPermission)));
+                    return true;
+                }
+
+                Main.getInstance().reloadConfigs();
+                p.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.reloadSuccess")));
             } else {
                 p.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.wrongUsage")));
             }
