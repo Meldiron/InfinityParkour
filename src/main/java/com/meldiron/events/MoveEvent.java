@@ -20,7 +20,7 @@ public class MoveEvent implements Listener {
         underPlayer.setY(Math.floor(underPlayer.getY()));
         underPlayer.setZ(Math.floor(underPlayer.getZ()));
 
-        if(underPlayer.getBlock().getType() == Material.getMaterial(Main.getInstance().getConfig().getString("parkourBlock"))) {
+        if(Main.getInstance().getGm().isInArena(e.getPlayer()) == true) {
             Game game = Main.getInstance().getGm().getGameByLoc(underPlayer);
             if(game != null) {
                 game.spawnAtRandomPos(underPlayer);

@@ -32,6 +32,16 @@ public class GameManager {
         loadFreePoses();
     }
 
+    public void reloadFreePoses() {
+        for(Player p : playerToGame.keySet()) {
+            leaveGame(p);
+        }
+
+        freePoses = new ArrayList<>();
+        usedPoses = new HashMap<>();
+        loadFreePoses();
+    }
+
     public Game getGameByLoc(Location loc) {
         Game g = null;
         for (Game game : playerToGame.values()) {
@@ -84,13 +94,13 @@ public class GameManager {
 
     public void startGame(Player p) {
         if(isInArena(p) == true) {
-            p.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.alreadyInGame")));
+            Main.sendMessage(p, Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.alreadyInGame")));
             p.closeInventory();
             return;
         }
 
         if(freePoses.size() == 0) {
-            p.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.allArenasUsed")));
+            Main.sendMessage(p, Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.allArenasUsed")));
             p.closeInventory();
             return;
         }
@@ -117,14 +127,14 @@ public class GameManager {
         Location loc = usedPoses.get(p);
 
         if(loc == null) {
-            p.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.meaninglessLeave")));
+            Main.sendMessage(p, Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.meaninglessLeave")));
             return;
         }
 
         Location oldLoc = playerPosBeforeTeleport.get(p);
 
         if(oldLoc == null) {
-            p.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.cantTeleport")));
+            Main.sendMessage(p, Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.cantTeleport")));
             return;
         }
         usedPoses.remove(p);
@@ -142,7 +152,7 @@ public class GameManager {
 
         playerToGame.remove(p);
 
-        p.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.areaLeave")));
+        Main.sendMessage(p, Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.areaLeave")));
 
         p.setHealth(playerHealth.get(p));
         p.setFoodLevel(playerHunge.get(p));
@@ -186,5 +196,14 @@ public class GameManager {
         }
 
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+    }
+
+    public Material getRandomParkourBlock() {
+        List<String> blocks = Main.getInstance().getConfig().getStringList("parkourBlocks");
+        Random rand = new Random();
+
+        String block = blocks.get(rand.nextInt(blocks.size()));
+
+        return Material.getMaterial(block);
     }
 }

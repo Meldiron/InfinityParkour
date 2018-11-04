@@ -38,7 +38,7 @@ public class ScoreboardManager {
         Integer oldScore = Main.getInstance().getScoreboard().getInt("players." + p.getName() + ".score");
 
         if(oldScore == null || score > oldScore) {
-            p.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.newRecord")));
+            Main.sendMessage(p, Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.newRecord")));
             Main.getInstance().getScoreboard().set("players." + p.getName() + ".score", score);
             Main.getInstance().getFm().saveConfig("scoreboard.yml");
 

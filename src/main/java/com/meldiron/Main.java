@@ -11,6 +11,7 @@ import com.meldiron.libs.FileManager;
 import com.meldiron.libs.GUIManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -38,6 +39,9 @@ public final class Main extends JavaPlugin {
         fm.getConfig("scoreboard.yml").copyDefaults(true).save();
         this.scoreboard = fm.getConfig("scoreboard.yml").get();
 
+        FixConfig.getInstance().FixFor102();
+        FixConfig.getInstance().FixFor103();
+
         this.getCommand("infinityparkour").setExecutor(new InfinityParkourCmd());
         this.getCommand("infinityparkour").setTabCompleter(new AutoComplete());
         getServer().getPluginManager().registerEvents(new GUIManager(), this);
@@ -62,6 +66,7 @@ public final class Main extends JavaPlugin {
         this.scoreboard = fm.reloadConfig("scoreboard.yml").get();
 
         InfinityParkourGUI.refresh();
+        getGm().reloadFreePoses();
     }
 
     public static String formatedMsg(String msg) {
@@ -86,5 +91,13 @@ public final class Main extends JavaPlugin {
 
     public YamlConfiguration getScoreboard() {
         return this.scoreboard;
+    }
+
+    public static void sendMessage(Player p, String msg) {
+        p.sendMessage(msg.replace("&", "§"));
+    }
+
+    public static String colorize(String msg) {
+        return msg.replace("&", "§");
     }
 }

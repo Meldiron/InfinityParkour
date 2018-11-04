@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class InfinityParkourGUI extends GUIManager {
     public static InfinityParkourGUI instance = null;
@@ -35,15 +36,20 @@ public class InfinityParkourGUI extends GUIManager {
 
 
     public InfinityParkourGUI() {
-        super(3,  Main.getInstance().getLangConfig().getConfigurationSection("mainGui").getString("title"));
+        super(3,  Main.colorize(Main.getInstance().getLangConfig().getConfigurationSection("mainGui").getString("title")));
 
         ConfigurationSection lang = Main.getInstance().getLangConfig().getConfigurationSection("mainGui");
 
-        ItemStack glass = new ItemStack(Material.getMaterial(Main.getInstance().getLangConfig().getString("mainGui.fillItem")));
-        ItemMeta glassMeta = glass.getItemMeta();
-        glassMeta.setDisplayName(" ");
-        glassMeta.setLore(new ArrayList<>());
-        glass.setItemMeta(glassMeta);
+        ItemStack glass = null;
+
+        if(Main.getInstance().getLangConfig().getBoolean("mainGui.useFillItem") == true) {
+            glass = new ItemStack(Material.getMaterial(Main.getInstance().getLangConfig().getString("mainGui.fillItem")));
+            ItemMeta glassMeta = glass.getItemMeta();
+            glassMeta.setDisplayName(" ");
+            glassMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            glassMeta.setLore(new ArrayList<>());
+            glass.setItemMeta(glassMeta);
+        }
 
         for(int i = 0; i < 27; i++) {
             if(i == 10) {
@@ -51,8 +57,9 @@ public class InfinityParkourGUI extends GUIManager {
 
                 ItemStack tutItem = new ItemStack(Material.getMaterial(tutItemCfg.getString("item")));
                 ItemMeta tutItemmeta = tutItem.getItemMeta();
-                tutItemmeta.setDisplayName(tutItemCfg.getString("title"));
-                tutItemmeta.setLore(tutItemCfg.getStringList("lore"));
+                tutItemmeta.setDisplayName(Main.colorize(tutItemCfg.getString("title")));
+                tutItemmeta.setLore(tutItemCfg.getStringList("lore").stream().map(n -> Main.colorize(n)).collect(Collectors.toList()));
+                tutItemmeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
                 tutItem.setItemMeta(tutItemmeta);
 
                 setItem(i, tutItem);
@@ -63,15 +70,15 @@ public class InfinityParkourGUI extends GUIManager {
 
                 ItemStack playItem = new ItemStack(Material.getMaterial(playItemCfg.getString("item")));
                 ItemMeta playItemMeta = playItem.getItemMeta();
-                playItemMeta.setDisplayName(playItemCfg.getString("title"));
-                playItemMeta.setLore(playItemCfg.getStringList("lore"));
+                playItemMeta.setDisplayName(Main.colorize(playItemCfg.getString("title")));
+                playItemMeta.setLore(playItemCfg.getStringList("lore").stream().map(n -> Main.colorize(n)).collect(Collectors.toList()));
                 playItemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
                 playItem.setItemMeta(playItemMeta);
 
                 setItem(i, playItem, player -> {
                     String guiPermission = Main.getInstance().getConfig().getString("permissions.playGame");
                     if(!(player.hasPermission(guiPermission))) {
-                        player.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.noPermissionPlay").replace("{{permissionName}}", guiPermission)));
+                        Main.sendMessage(player, Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.noPermissionPlay").replace("{{permissionName}}", guiPermission)));
                         player.closeInventory();
                         return;
                     }
@@ -84,7 +91,8 @@ public class InfinityParkourGUI extends GUIManager {
 
                 ItemStack scoreboardItem = new ItemStack(Material.getMaterial(scoreboardItemCfg.getString("item")));
                 ItemMeta scoreboardItemMeta = scoreboardItem.getItemMeta();
-                scoreboardItemMeta.setDisplayName(scoreboardItemCfg.getString("title"));
+                scoreboardItemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                scoreboardItemMeta.setDisplayName(Main.colorize(scoreboardItemCfg.getString("title")));
 
                 List<String> loreList = new ArrayList<>();
 
@@ -114,19 +122,20 @@ public class InfinityParkourGUI extends GUIManager {
                     }
                 }
 
-                scoreboardItemMeta.setLore(loreList);
+                scoreboardItemMeta.setLore(loreList.stream().map(n -> Main.colorize(n)).collect(Collectors.toList()));
+
                 scoreboardItem.setItemMeta(scoreboardItemMeta);
 
                 setItem(i, scoreboardItem, player -> {
                     HashMap<String, Object> stats = ScoreboardManager.getInstance().getStatsByPlayer(player);
 
                     if(stats == null) {
-                        player.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.chatStatsError")));
+                        Main.sendMessage(player, Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.chatStatsError")));
                         player.closeInventory();
                         return;
                     }
 
-                    player.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.chatStats")
+                    Main.sendMessage(player, Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.chatStats")
                         .replace("{{playerPlace}}", stats.get("place").toString())
                             .replace("{{totalPlaces}}", stats.get("total").toString())
                             .replace("{{percentile}}", stats.get("topPerc").toString())
@@ -140,7 +149,9 @@ public class InfinityParkourGUI extends GUIManager {
                 continue;
             }
 
-            setItem(i, glass);
+            if(glass != null) {
+                setItem(i, glass);
+            }
         }
     }
 

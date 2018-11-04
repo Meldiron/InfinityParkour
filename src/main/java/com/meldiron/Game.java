@@ -3,6 +3,7 @@ package com.meldiron;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -46,7 +47,7 @@ public class Game {
         List<String> msgs = Main.getInstance().getLangConfig().getStringList("chat.scoreMsgs");
         String msg = msgs.get(rand.nextInt(msgs.size()));
 
-        this.p.sendMessage(Main.formatedMsg(msg.replace("{{score}}", score.toString())));
+        Main.sendMessage(p, Main.formatedMsg(msg.replace("{{score}}", score.toString())));
     }
 
     public void startGame() {
@@ -57,7 +58,7 @@ public class Game {
         spawnAtRandomPos(underPlayer);
         p.teleport(locToTeleportTo);
         p.closeInventory();
-        p.sendMessage(Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.arenaStart")));
+        Main.sendMessage(p, Main.formatedMsg(Main.getInstance().getLangConfig().getString("chat.arenaStart")));
     }
 
     public void spawnAtPos(Location loc) {
@@ -68,7 +69,9 @@ public class Game {
         block1 = block2;
         block2 = loc;
 
-        loc.getBlock().setType(Material.getMaterial(Main.getInstance().getConfig().getString("parkourBlock")));
+
+
+        loc.getBlock().setType(Main.getInstance().getGm().getRandomParkourBlock());
 
         Location particleLoc = loc.clone();
         particleLoc.add(0,1,0);

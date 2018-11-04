@@ -1,9 +1,10 @@
 startPositions:
   - x: 1500
-    y: 100
+    y: 150
     z: 0
     world: 'world'
-parkourBlock: 'WHITE_TERRACOTTA'
+parkourBlocks:
+  - 'EMERALD_BLOCK'
 runFinishCommands: false
 finishCommands:
   - commands:
@@ -17,7 +18,7 @@ finishCommands:
       - '/say {{playerName}} is MONSTER with score {{score}}'
     minScore: 11
 particle:
-  show: true
+  show: false
   type: CLOUD
   amount: 50
 permissions:
