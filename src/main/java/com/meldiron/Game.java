@@ -1,8 +1,6 @@
 package com.meldiron;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -38,17 +36,7 @@ public class Game {
 
         ScoreboardManager.getInstance().updateScore(p, score);
 
-        if(Main.getInstance().getConfig().getBoolean("runFinishCommand") == true) {
-            String commandToRun = Main.getInstance().getConfig().getString("finishCommand");
-
-            String cmd = commandToRun.replace("{{playerName}}", p.getName()).replace("{{score}}", score.toString());
-
-            if(cmd.startsWith("/")) {
-                cmd = cmd.substring(1);
-            }
-
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
-        }
+        Main.getInstance().getGm().runFinishCommands(p, score);
     }
 
     public void addScore() {
@@ -81,6 +69,13 @@ public class Game {
         block2 = loc;
 
         loc.getBlock().setType(Material.getMaterial(Main.getInstance().getConfig().getString("parkourBlock")));
+
+        Location particleLoc = loc.clone();
+        particleLoc.add(0,1,0);
+
+        if(Main.getInstance().getConfig().getBoolean("particle.show") == true) {
+            loc.getWorld().spawnParticle(Particle.valueOf(Main.getInstance().getConfig().getString("particle.type")), particleLoc, Main.getInstance().getConfig().getInt("particle.amount"));
+        }
     }
 
     public void spawnAtRandomPos(Location currentLoc) {

@@ -9,6 +9,7 @@ import com.meldiron.events.MoveEvent;
 import com.meldiron.guis.InfinityParkourGUI;
 import com.meldiron.libs.FileManager;
 import com.meldiron.libs.GUIManager;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -38,6 +39,7 @@ public final class Main extends JavaPlugin {
         this.scoreboard = fm.getConfig("scoreboard.yml").get();
 
         this.getCommand("infinityparkour").setExecutor(new InfinityParkourCmd());
+        this.getCommand("infinityparkour").setTabCompleter(new AutoComplete());
         getServer().getPluginManager().registerEvents(new GUIManager(), this);
         getServer().getPluginManager().registerEvents(new MoveEvent(), this);
         getServer().getPluginManager().registerEvents(new HungerEvent(), this);
@@ -45,11 +47,13 @@ public final class Main extends JavaPlugin {
 
         gm = new GameManager();
 
+        Bukkit.getLogger().info("Infinity Parkour plugin started");
+
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        Bukkit.getLogger().info("Infinity Parkour plugin stopped");
     }
 
     public void reloadConfigs() {

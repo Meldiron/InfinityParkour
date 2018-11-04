@@ -9,10 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class GameManager {
     private ArrayList<Location> freePoses;
@@ -152,5 +149,42 @@ public class GameManager {
 
         playerHealth.remove(p);
         playerHunge.remove(p);
+    }
+
+    public void runFinishCommands(Player p, Integer score) {
+        if(Main.getInstance().getConfig().getBoolean("runFinishCommands") == true) {
+            List<Map<?, ?>> cmds = Main.getInstance().getConfig().getMapList("finishCommands");
+
+            for(Map<?, ?> cmdData : cmds) {
+                Integer minScore = Integer.MIN_VALUE;
+                Integer maxScore = Integer.MAX_VALUE;
+
+                if(cmdData.get("minScore") != null) {
+                    minScore = Integer.parseInt(cmdData.get("minScore").toString());
+                }
+
+                if(cmdData.get("maxScore") != null) {
+                    maxScore = Integer.parseInt(cmdData.get("maxScore").toString());
+                }
+
+                if(score >= minScore && score <= maxScore) {
+                    List<String> cmdsToRun = (List<String>) cmdData.get("commands");
+
+                    for(String cmd : cmdsToRun) {
+                        runCommand(p, score, cmd);
+                    }
+                }
+            }
+        }
+    }
+
+    public void runCommand(Player p, Integer score, String cmd) {
+        cmd = cmd.replace("{{playerName}}", p.getName()).replace("{{score}}", score.toString());
+
+        if(cmd.startsWith("/")) {
+            cmd = cmd.substring(1);
+        }
+
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
     }
 }

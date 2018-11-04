@@ -4,8 +4,22 @@ startPositions:
     z: 0
     world: 'world'
 parkourBlock: 'WHITE_TERRACOTTA'
-runFinishCommand: false
-finishCommand: '/say {{playerName}} achieved score {{score}}'
+runFinishCommands: false
+finishCommands:
+  - commands:
+      - '/say {{playerName}} is NOOB with score {{score}}'
+    maxScore: 5
+  - commands:
+      - '/say {{playerName}} is JUMPER with score {{score}}'
+    minScore: 6
+    maxScore: 10
+  - commands:
+      - '/say {{playerName}} is MONSTER with score {{score}}'
+    minScore: 11
+particle:
+  show: true
+  type: CLOUD
+  amount: 50
 permissions:
   openGui: 'infinityparkour.opengui'
   leaveArena: 'infinityparkour.leavearena'
