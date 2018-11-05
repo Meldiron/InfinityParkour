@@ -1,8 +1,7 @@
-name: InfinityplParkour
-version: 1.0.3
-main: com.meldiron.Main
+name: InfinityParkour
+version: 1.0.4
+main: com.meldiron.infinityparkour.Main
 prefix: infinity-parkour
-api-version: 1.13
 authors: [Meldiron]
 description: Infinity parkour training plugin
 website: https://www.spigotmc.org/members/meldiron.92826/

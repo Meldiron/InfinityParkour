@@ -1,22 +1,22 @@
 startPositions:
-  - x: 1500
-    y: 150
-    z: 0
-    world: 'world'
+- x: 1500
+  y: 150
+  z: 0
+  world: 'world'
 parkourBlocks:
-  - 'EMERALD_BLOCK'
+- 'EMERALD_BLOCK'
 runFinishCommands: false
 finishCommands:
-  - commands:
-      - '/say {{playerName}} is NOOB with score {{score}}'
-    maxScore: 5
-  - commands:
-      - '/say {{playerName}} is JUMPER with score {{score}}'
-    minScore: 6
-    maxScore: 10
-  - commands:
-      - '/say {{playerName}} is MONSTER with score {{score}}'
-    minScore: 11
+- commands:
+  - '/say {{playerName}} is NOOB with score {{score}}'
+  maxScore: 5
+- commands:
+  - '/say {{playerName}} is JUMPER with score {{score}}'
+  minScore: 6
+  maxScore: 10
+- commands:
+  - '/say {{playerName}} is MONSTER with score {{score}}'
+  minScore: 11
 particle:
   show: false
   type: CLOUD
@@ -26,3 +26,10 @@ permissions:
   leaveArena: 'infinityparkour.leavearena'
   playGame: 'infinityparkour.play'
   reload: 'infinityparkour.reload'
+mysql:
+  enabled: false
+  host: 'localhost'
+  username: 'root'
+  password: 'test'
+  port: 3306
+  database: 'mc'
