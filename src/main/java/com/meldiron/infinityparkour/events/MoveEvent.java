@@ -1,7 +1,7 @@
 package com.meldiron.infinityparkour.events;
 
-import com.meldiron.infinityparkour.Game;
-import com.meldiron.infinityparkour.GameManager;
+import com.meldiron.infinityparkour.managers.Game;
+import com.meldiron.infinityparkour.managers.GameManager;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

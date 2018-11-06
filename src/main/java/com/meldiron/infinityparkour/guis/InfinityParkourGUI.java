@@ -1,15 +1,12 @@
 package com.meldiron.infinityparkour.guis;
 
-import com.meldiron.infinityparkour.GameManager;
+import com.meldiron.infinityparkour.managers.GameManager;
 import com.meldiron.infinityparkour.Main;
-import com.meldiron.infinityparkour.ScoreboardManager;
+import com.meldiron.infinityparkour.managers.ScoreboardManager;
 import com.meldiron.infinityparkour.libs.GUIManager;
 import com.meldiron.infinityparkour.libs.XItemStack;
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +16,7 @@ import java.util.stream.Collectors;
 
 public class InfinityParkourGUI extends GUIManager {
     private static InfinityParkourGUI ourInstance;
+
     public static InfinityParkourGUI getInstance() {
         if(ourInstance == null) {
             ourInstance = new InfinityParkourGUI();
@@ -43,7 +41,7 @@ public class InfinityParkourGUI extends GUIManager {
 
     public InfinityParkourGUI() {
         super(3,  Main.getInstance().color(Main.getInstance().lang.getString("mainGui.title")));
-        
+
         main = Main.getInstance();
         sm = ScoreboardManager.getInstance();
         gm = GameManager.getInstance();
@@ -128,7 +126,7 @@ public class InfinityParkourGUI extends GUIManager {
                         scoreboardItemCfg.getString("title"),
                         finalLore
                 ), player -> {
-                    HashMap<String, Object> stats = sm.getStatsByPlayer(player);
+                    HashMap<String, Integer> stats = sm.getStatsByPlayer(player);
 
                     if(stats == null) {
                         player.sendMessage(main.color(true, main.lang.getString("chat.chatStatsError")));

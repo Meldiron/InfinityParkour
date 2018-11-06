@@ -18,9 +18,8 @@ finishCommands:
   - '/say {{playerName}} is MONSTER with score {{score}}'
   minScore: 11
 particle:
-  show: false
-  type: CLOUD
-  amount: 50
+  show: true
+  type: ANVIL_USE
 permissions:
   openGui: 'infinityparkour.opengui'
   leaveArena: 'infinityparkour.leavearena'

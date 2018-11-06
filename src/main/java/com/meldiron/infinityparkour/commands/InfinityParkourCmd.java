@@ -1,17 +1,15 @@
 package com.meldiron.infinityparkour.commands;
 
-import com.meldiron.infinityparkour.GameManager;
-import com.meldiron.infinityparkour.Main;
 import com.meldiron.infinityparkour.guis.InfinityParkourGUI;
-import com.meldiron.infinityparkour.libs.MySQL;
+import com.meldiron.infinityparkour.libs.GUIManager;
+import com.meldiron.infinityparkour.managers.GameManager;
+import com.meldiron.infinityparkour.Main;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +44,6 @@ public class InfinityParkourCmd implements CommandExecutor, TabCompleter {
             }
 
             InfinityParkourGUI.getInstance().open(p);
-
         } else if(args.length == 1) {
             if(args[0].equalsIgnoreCase("leave")) {
                 String leavePermission = main.getConfig().getString("permissions.leaveArena");

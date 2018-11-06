@@ -17,6 +17,15 @@ public class FixConfig {
         main = Main.getInstance();
     }
 
+
+    public void FixFor105() {
+        YamlConfiguration config = main.config;
+
+        if(config.get("particle.amount") != null) {
+            config.set("particle.amount", null);
+        }
+    }
+
     public void FixFor103() {
         YamlConfiguration config = main.config;
 
@@ -27,7 +36,6 @@ public class FixConfig {
         }
 
         config.set("parkourBlock", null);
-       main.fileManager.saveConfig("config.yml");
     }
 
     public void FixFor102() {
@@ -50,6 +58,5 @@ public class FixConfig {
 
         config.set("runFinishCommand", null);
         config.set("finishCommand", null);
-        main.fileManager.saveConfig("config.yml");
     }
 }

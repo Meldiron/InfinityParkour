@@ -7,7 +7,8 @@ import com.meldiron.infinityparkour.events.MoveEvent;
 import com.meldiron.infinityparkour.guis.InfinityParkourGUI;
 import com.meldiron.infinityparkour.libs.FileManager;
 import com.meldiron.infinityparkour.libs.GUIManager;
-import com.meldiron.infinityparkour.libs.MySQL;
+import com.meldiron.infinityparkour.libs.SQL;
+import com.meldiron.infinityparkour.managers.GameManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -41,6 +42,8 @@ public final class Main extends JavaPlugin {
 
         FixConfig.getInstance().FixFor102();
         FixConfig.getInstance().FixFor103();
+        FixConfig.getInstance().FixFor105();
+        fileManager.saveConfig("config.yml");
 
         this.getCommand("infinityparkour").setExecutor(InfinityParkourCmd.getInstance());
         this.getCommand("infinityparkour").setTabCompleter(InfinityParkourCmd.getInstance());
@@ -52,10 +55,12 @@ public final class Main extends JavaPlugin {
 
         ConfigurationSection mysqlConfig = this.config.getConfigurationSection("mysql");
 
+        // SQL.getInstance().setTesting(true);
+
         if(mysqlConfig.getBoolean("enabled") == false) {
-            MySQL.getInstance().connectLite();
+            SQL.getInstance().connectLite();
         } else {
-            MySQL.getInstance().connect(
+            SQL.getInstance().connect(
                     mysqlConfig.getString("host"),
                     mysqlConfig.getString("database"),
                     mysqlConfig.getString("username"),

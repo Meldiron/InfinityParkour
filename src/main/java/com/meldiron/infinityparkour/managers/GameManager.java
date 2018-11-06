@@ -1,5 +1,6 @@
-package com.meldiron.infinityparkour;
+package com.meldiron.infinityparkour.managers;
 
+import com.meldiron.infinityparkour.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;

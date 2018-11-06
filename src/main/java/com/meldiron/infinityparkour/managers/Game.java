@@ -1,5 +1,9 @@
-package com.meldiron.infinityparkour;
+package com.meldiron.infinityparkour.managers;
 
+import com.meldiron.infinityparkour.Main;
+import com.meldiron.infinityparkour.managers.GameManager;
+import com.meldiron.infinityparkour.managers.ScoreboardManager;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -82,8 +86,8 @@ public class Game {
         Location particleLoc = loc.clone();
         particleLoc.add(0,1,0);
 
-        if(Main.getInstance().getConfig().getBoolean("particle.show") == true) {
-            loc.getWorld().spawnParticle(Particle.valueOf(Main.getInstance().getConfig().getString("particle.type")), particleLoc, Main.getInstance().getConfig().getInt("particle.amount"));
+       if(Main.getInstance().getConfig().getBoolean("particle.show") == true) {
+            loc.getWorld().playEffect(particleLoc, Effect.SMOKE, Integer.MAX_VALUE);
         }
     }
 
