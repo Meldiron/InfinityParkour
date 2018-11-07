@@ -19,6 +19,7 @@ public class GameManager {
     private Main main;
 
     private ArrayList<Location> freePoses;
+    private HashMap<Location, Location> freePosToEndPos;
     private HashMap<Player, Location> usedPoses;
     private HashMap<Player, Location> playerPosBeforeTeleport;
     private HashMap<Player, Game> playerToGame;
@@ -32,6 +33,7 @@ public class GameManager {
         main = Main.getInstance();
 
         freePoses = new ArrayList<>();
+        freePosToEndPos = new HashMap<>();
         usedPoses = new HashMap<>();
         playerToGame = new HashMap<>();
         playerPosBeforeTeleport = new HashMap<>();
@@ -47,6 +49,7 @@ public class GameManager {
 
         freePoses = new ArrayList<>();
         usedPoses = new HashMap<>();
+        freePosToEndPos = new HashMap<>();
         loadFreePoses();
     }
 
@@ -60,6 +63,16 @@ public class GameManager {
         }
 
         return g;
+    }
+
+    public boolean isBlockInArena(Location loc) {
+        for(Game g : playerToGame.values()) {
+            if(g.block1.equals(loc) || g.block2.equals(loc)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public Game getGameByPlayer(Player p) {
@@ -85,7 +98,35 @@ public class GameManager {
             String world = pos.get("world").toString();
 
             Location loc = new Location(Bukkit.getWorld(world), x,y,z);
+
+            if(pos.get("pitch") != null) {
+                loc.setPitch(Float.parseFloat(pos.get("pitch").toString()));
+            }
+
+            if(pos.get("yaw") != null) {
+                loc.setYaw(Float.parseFloat(pos.get("yaw").toString()));
+            }
+
             freePoses.add(loc);
+
+            if(pos.get("useCustomEndPosition") != null && Boolean.parseBoolean(pos.get("useCustomEndPosition").toString()) == true) {
+                float endX = Integer.parseInt(pos.get("endPos.x").toString());
+                float endY = Integer.parseInt(pos.get("endPos.y").toString());
+                float endZ = Integer.parseInt(pos.get("endPos.z").toString());
+                String endWorld = pos.get("endPos.world").toString();
+
+                Location endLoc = new Location(Bukkit.getWorld(endWorld), endX, endY, endZ);
+
+                if(pos.get("endPos.pitch") != null) {
+                    endLoc.setPitch(Float.parseFloat(pos.get("endPos.pitch").toString()));
+                }
+
+                if(pos.get("endPos.yaw") != null) {
+                    endLoc.setYaw(Float.parseFloat(pos.get("endPos.yaw").toString()));
+                }
+
+                freePosToEndPos.put(loc, endLoc);
+            }
         }
     }
 
@@ -149,7 +190,14 @@ public class GameManager {
         freePoses.add(loc);
         p.setVelocity(new Vector(0,0,0));
         p.setFallDistance(0F);
-        p.teleport(oldLoc);
+
+        Location leaveLoc = freePosToEndPos.get(loc);
+
+        if(leaveLoc != null) {
+            p.teleport(leaveLoc);
+        } else {
+            p.teleport(oldLoc);
+        }
 
         Game g = playerToGame.get(p);
         if(g != null) {
@@ -169,7 +217,7 @@ public class GameManager {
     }
 
     public void runFinishCommands(Player p, Integer score) {
-        if(Main.getInstance().getConfig().getBoolean("runFinishCommands") == true) {
+        if(Main.getInstance().config.getBoolean("runFinishCommands") == true) {
             List<Map<?, ?>> cmds = Main.getInstance().getConfig().getMapList("finishCommands");
 
             for(Map<?, ?> cmdData : cmds) {

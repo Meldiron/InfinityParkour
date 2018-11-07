@@ -1,6 +1,7 @@
 package com.meldiron.infinityparkour;
 
 import com.meldiron.infinityparkour.commands.InfinityParkourCmd;
+import com.meldiron.infinityparkour.events.BreakEvent;
 import com.meldiron.infinityparkour.events.HungerEvent;
 import com.meldiron.infinityparkour.events.LeaveEvent;
 import com.meldiron.infinityparkour.events.MoveEvent;
@@ -12,6 +13,7 @@ import com.meldiron.infinityparkour.managers.GameManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -51,6 +53,7 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new GUIManager(), this);
         getServer().getPluginManager().registerEvents(new MoveEvent(), this);
         getServer().getPluginManager().registerEvents(new HungerEvent(), this);
+        getServer().getPluginManager().registerEvents(new BreakEvent(), this);
         getServer().getPluginManager().registerEvents(new LeaveEvent(), this);
 
         ConfigurationSection mysqlConfig = this.config.getConfigurationSection("mysql");
@@ -75,11 +78,20 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        for(Player p : Bukkit.getOnlinePlayers()) {
+            if(GameManager.getInstance().isInArena(p) == true) {
+                GameManager.getInstance().leaveGame(p);
+            }
+        }
+
+
         Bukkit.getLogger().info("Plugin " + pluginName + " stopped");
+
     }
 
     public void reloadConfigs() {
         this.config = fileManager.reloadConfig("config.yml").get();
+        this.lang = fileManager.reloadConfig("translations.yml").get();
 
         InfinityParkourGUI.getInstance().refresh();
         GameManager.getInstance().reloadFreePoses();

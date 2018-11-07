@@ -66,7 +66,8 @@ public class InfinityParkourGUI extends GUIManager {
                 setItem(i, is.createItem(
                         tutItemCfg.getString("item"),
                         tutItemCfg.getString("title"),
-                        tutItemCfg.getStringList("lore")
+                        tutItemCfg.getStringList("lore"),
+                        tutItemCfg.getBoolean("glow")
                 ));
 
                 continue;
@@ -76,9 +77,10 @@ public class InfinityParkourGUI extends GUIManager {
                 setItem(i, is.createItem(
                         playItemCfg.getString("item"),
                         playItemCfg.getString("title"),
-                        playItemCfg.getStringList("lore")
+                        playItemCfg.getStringList("lore"),
+                        playItemCfg.getBoolean("glow")
                 ), player -> {
-                    String guiPermission = main.getConfig().getString("permissions.playGame");
+                    String guiPermission = main.config.getString("permissions.playGame");
                     if(!(player.hasPermission(guiPermission))) {
                         player.sendMessage(main.color(true, main.lang.getString("chat.noPermissionPlay").replace("{{permissionName}}", guiPermission)));
                         player.closeInventory();
@@ -124,7 +126,8 @@ public class InfinityParkourGUI extends GUIManager {
                 setItem(i, is.createItem(
                         scoreboardItemCfg.getString("item"),
                         scoreboardItemCfg.getString("title"),
-                        finalLore
+                        finalLore,
+                        scoreboardItemCfg.getBoolean("glow")
                 ), player -> {
                     sm.getStatsByPlayer(player, stats -> {
                         if(stats == null) {

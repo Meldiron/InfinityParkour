@@ -3,6 +3,7 @@ package com.meldiron.infinityparkour.managers;
 import com.meldiron.infinityparkour.Main;
 import com.meldiron.infinityparkour.managers.GameManager;
 import com.meldiron.infinityparkour.managers.ScoreboardManager;
+import jdk.nashorn.internal.ir.Block;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,6 +25,9 @@ public class Game {
     public Location block1;
     public Location block2;
 
+    private Material loc1OldBlock;
+    private Material loc2OldBlock;
+
     public Game(Player p, Location middleLoc) {
         gm = GameManager.getInstance();
         main = Main.getInstance();
@@ -42,8 +46,17 @@ public class Game {
     }
 
     public void endGame() {
-        block1.getBlock().setType(Material.AIR);
-        block2.getBlock().setType(Material.AIR);
+        if(loc1OldBlock != null) {
+            block1.getBlock().setType(loc1OldBlock);
+        } else {
+            block1.getBlock().setType(Material.AIR);
+        }
+
+        if(loc2OldBlock != null) {
+            block2.getBlock().setType(loc2OldBlock);
+        } else {
+            block2.getBlock().setType(Material.AIR);
+        }
 
         ScoreboardManager.getInstance().updateScore(p, score);
 
@@ -73,13 +86,27 @@ public class Game {
 
     public void spawnAtPos(Location loc) {
         if(block1 != null) {
-            block1.getBlock().setType(Material.AIR);
+            if(loc1OldBlock != null) {
+                block1.getBlock().setType(loc1OldBlock);
+            } else {
+                block1.getBlock().setType(Material.AIR);
+            }
         }
 
-        block1 = block2;
-        block2 = loc;
+        if(block2 != null) {
+            loc1OldBlock = loc2OldBlock;
+        } else {
+            block1 = null;
+            loc1OldBlock = null;
+        }
 
+        block2 = loc.clone();
 
+        System.out.println(loc);
+        System.out.println(loc.getBlock());
+        System.out.println(loc.getBlock().getType());
+
+        loc2OldBlock = loc.getBlock().getType();
 
         loc.getBlock().setType(gm.getRandomParkourBlock());
 

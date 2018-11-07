@@ -2,7 +2,17 @@ startPositions:
 - x: 1500
   y: 150
   z: 0
+  pitch: 0
+  yaw: 0
   world: 'world'
+  useCustomEndPosition: false
+  endPos:
+    x: 1450
+    y: 150
+    z: 50
+    pitch: 0
+    yaw: 0
+    world: 'world'
 parkourBlocks:
 - 'EMERALD_BLOCK'
 runFinishCommands: false

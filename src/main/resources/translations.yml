@@ -15,6 +15,7 @@ chat:
   chatStats: 'Your best score is &6{{playerScore}}&7, your place is &6{{playerPlace}}&7/&6{{totalPlaces}}&7 and you are TOP &6{{percentile}}&7%'
   alreadyInGame: 'You are already in arena. To leave, type &c/infp leave'
   newRecord: 'You have beat your previous record!!!'
+  blockInArena: 'You cant break block which is used in Infinity Parkour'
   scoreMsgs:
   - 'Nice jump! Score: &f{{score}}'
   - 'Good Job! Score: &f{{score}}'
@@ -22,6 +23,14 @@ chat:
   - 'Awesome! Score: &f{{score}}'
   - 'You are a monster! Score: &f{{score}}'
   - 'Unstoppable! Score: &f{{score}}'
+helpCommand:
+  - '&7--------------- &6&lInfinity Parkour &7---------------'
+  - ' &6/infp &7- &fOpen Infinity parkoru GUI &7(infinityparkour.opengui)'
+  - ' &6/infp play &7- &fAttempt to join arena &7(infinityparkour.play)'
+  - ' &6/infp help &7- &fShow this help'
+  - ' &6/infp reload&7- &fReload Infinity parkour plugin (do this when you edit config files) &7(infinityparkour.reload)'
+  - ' &6/infp leave &7- &fLeave arena &7(infinityparkour.leave)'
+  - '&7------------------------------------------------'
 mainGui:
   title: '&9&lInf&8&linity &9&lP&8&larkour'
   useFillItem: true
@@ -29,6 +38,7 @@ mainGui:
   tutorialItem:
     item: 'BOOK'
     title: '&9&lHow to play?'
+    glow: false
     lore:
     - '&7Your only mission is to jump'
     - '&7on closest block you can see.'
@@ -40,6 +50,7 @@ mainGui:
   playItem:
     item: 'DIAMOND_BOOTS'
     title: '&9&lPlay'
+    glow: true
     lore:
     - '&7Once you click play you will be'
     - '&7teleported to an arena and you can play.'
@@ -48,6 +59,7 @@ mainGui:
   scoreboardItem:
     item: SIGN
     title: '&9&lScoreboard'
+    glow: false
     scoreboardRecord: '&f{{index}}. &9{{playerName}} &7({{score}})'
     lore:
     - '{{scoreboard}}'

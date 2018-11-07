@@ -32,23 +32,44 @@ public class InfinityParkourCmd implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(!(sender instanceof Player)) {
-            sender.sendMessage(main.color("This command is only for players :("));
-            return true;
+
+            if(args.length == 0) {
+                sender.sendMessage(main.color("From console only thing you can do is: /infp <playerName> - open GUI to specific player"));
+                return true;
+            } else if(args.length == 1) {
+                Player p = null;
+
+                for(Player player : Bukkit.getOnlinePlayers()) {
+                    if(player.getName().equalsIgnoreCase(args[0])) {
+                        p = player;
+                    }
+                }
+
+                if(p == null) {
+                    sender.sendMessage(main.color("Player not found (player must be online)"));
+                    return true;
+                }
+
+                InfinityParkourGUI.getInstance().open(p);
+            } else {
+                sender.sendMessage(main.color("From console only thing you can do is: /infp <playerName> - open GUI to specific player"));
+                return true;
+            }
         }
 
         Player p = (Player) sender;
 
         if(args.length == 0) {
-            String guiPermission = main.getConfig().getString("permissions.openGui");
+            String guiPermission = main.config.getString("permissions.openGui");
             if(!(p.hasPermission(guiPermission))) {
-                p.sendMessage(main.color(true, main.config.getString("chat.noPermissionGui").replace("{{permissionName}}", guiPermission)));
+                p.sendMessage(main.color(true, main.lang.getString("chat.noPermissionGui").replace("{{permissionName}}", guiPermission)));
                 return true;
             }
 
             InfinityParkourGUI.getInstance().open(p);
         } else if(args.length == 1) {
             if(args[0].equalsIgnoreCase("leave")) {
-                String leavePermission = main.getConfig().getString("permissions.leaveArena");
+                String leavePermission = main.config.getString("permissions.leaveArena");
                 if(!(p.hasPermission(leavePermission))) {
                     p.sendMessage(main.color(true, main.lang.getString("chat.noPermissionLeave").replace("{{permissionName}}", leavePermission)));
                     return true;
@@ -56,7 +77,7 @@ public class InfinityParkourCmd implements CommandExecutor, TabCompleter {
 
                 gm.leaveGame(p);
             } else if(args[0].equalsIgnoreCase("reload")) {
-                String reloadPermission = main.getConfig().getString("permissions.reload");
+                String reloadPermission = main.config.getString("permissions.reload");
                 if(!(p.hasPermission(reloadPermission))) {
                     p.sendMessage(main.color(true, main.lang.getString("chat.noPermissionReload").replace("{{permissionName}}", reloadPermission)));
                     return true;
@@ -65,15 +86,11 @@ public class InfinityParkourCmd implements CommandExecutor, TabCompleter {
                 main.reloadConfigs();
                 p.sendMessage(main.color(true, main.lang.getString("chat.reloadSuccess")));
             } else if(args[0].equalsIgnoreCase("help")) {
-                p.sendMessage(main.color( "&7--------------- &6&lInfinity Parkour &7---------------"));
-                p.sendMessage(main.color(" &6/infp &7- &fOpen Infinity parkoru GUI &7(infinityparkour.opengui)"));
-                p.sendMessage(main.color(" &6/infp play &7- &fAttempt to join arena &7(infinityparkour.play)"));
-                p.sendMessage(main.color(" &6/infp help &7- &fShow this help"));
-                p.sendMessage(main.color(" &6/infp reload&7- &fReload Infinity parkour plugin (do this when you edit config files) &7(infinityparkour.reload)"));
-                p.sendMessage(main.color(" &6/infp leave &7- &fLeave arena &7(infinityparkour.leave)"));
-                p.sendMessage(main.color("&7------------------------------------------------"));
+                for(String msg : main.lang.getStringList("helpCommand")) {
+                    p.sendMessage(main.color(msg));
+                }
             } else if(args[0].equalsIgnoreCase("play")) {
-                String guiPermission = main.getConfig().getString("permissions.playGame");
+                String guiPermission = main.config.getString("permissions.playGame");
                 if(!(p.hasPermission(guiPermission))) {
                     p.sendMessage(main.color(true, main.lang.getString("chat.noPermissionPlay").replace("{{permissionName}}", guiPermission)));
                     return true;
