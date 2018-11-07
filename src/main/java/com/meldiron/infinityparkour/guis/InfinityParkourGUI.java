@@ -126,24 +126,23 @@ public class InfinityParkourGUI extends GUIManager {
                         scoreboardItemCfg.getString("title"),
                         finalLore
                 ), player -> {
-                    HashMap<String, Integer> stats = sm.getStatsByPlayer(player);
+                    sm.getStatsByPlayer(player, stats -> {
+                        if(stats == null) {
+                            player.sendMessage(main.color(true, main.lang.getString("chat.chatStatsError")));
+                            player.closeInventory();
+                            return;
+                        }
 
-                    if(stats == null) {
-                        player.sendMessage(main.color(true, main.lang.getString("chat.chatStatsError")));
+                        player.sendMessage(main.color(true,
+                                main.lang.getString("chat.chatStats")
+                                        .replace("{{playerPlace}}", stats.get("place").toString())
+                                        .replace("{{totalPlaces}}", stats.get("total").toString())
+                                        .replace("{{percentile}}", stats.get("topPerc").toString())
+                                        .replace("{{playerScore}}", stats.get("score").toString())
+                        ));
+
                         player.closeInventory();
-                        return;
-                    }
-
-                    player.sendMessage(main.color(true,
-                            main.lang.getString("chat.chatStats")
-                                    .replace("{{playerPlace}}", stats.get("place").toString())
-                                    .replace("{{totalPlaces}}", stats.get("total").toString())
-                                    .replace("{{percentile}}", stats.get("topPerc").toString())
-                                    .replace("{{playerScore}}", stats.get("score").toString())
-                    ));
-
-                    player.closeInventory();
-
+                    });
                 });
 
                 continue;

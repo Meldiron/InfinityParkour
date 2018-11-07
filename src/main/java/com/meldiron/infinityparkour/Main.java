@@ -70,6 +70,7 @@ public final class Main extends JavaPlugin {
         }
 
         Bukkit.getLogger().info("Plugin " + pluginName + " started");
+
     }
 
     @Override

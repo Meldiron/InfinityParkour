@@ -1,7 +1,9 @@
 package com.meldiron.infinityparkour.libs;
 
 import com.meldiron.infinityparkour.Main;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -24,7 +26,6 @@ public class SQL {
 
     private static String host, database, username, password;
     private static int port;
-    private static boolean isTesting = false; // Will use both MySQL and SQLite
 
     public interface SQLAction {
         void callback(ResultSet res) throws SQLException;
@@ -32,10 +33,6 @@ public class SQL {
 
     public interface SQLStatementAction {
         void callback(PreparedStatement st) throws SQLException;
-    }
-
-    public void setTesting(boolean isTesting) {
-        SQL.isTesting = isTesting;
     }
 
     public Connection getLocalConnection() throws Exception {
@@ -100,10 +97,6 @@ public class SQL {
             openMysqlConnection();
 
             initDatabase(true);
-
-            if(SQL.isTesting == true) {
-                connectLite();
-            }
         } catch (Exception EMySql) {
             Bukkit.getLogger().info("SQL could not be connected ! Check your config.yml! Using fallback SQLite file");
 
@@ -132,12 +125,25 @@ public class SQL {
         connect();
     }
 
-    public void exec(String sql, SQLAction action) {
-        if(SQL.isTesting == true) {
-            execTest(sql, action);
-            return;
-        }
+    public void execAsync(String sql, SQLAction action) {
+        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            PreparedStatement st = null;
+            ResultSet res = null;
+            try {
+                st = getConnection().prepareStatement(sql);
+                res = st.executeQuery();
 
+                ResultSet finalRes = res;
+                PreparedStatement finalSt = st;
+                ResultSet finalRes1 = res;
+                asyncExecFinal(action, finalSt, finalRes1, finalRes);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void exec(String sql, SQLAction action) {
         PreparedStatement st = null;
         ResultSet res = null;
         try {
@@ -152,23 +158,44 @@ public class SQL {
         }
     }
 
-    public void exec(String sql, SQLStatementAction statementAction, SQLAction action) {
-        if(SQL.isTesting == true) {
-            execTest(sql, statementAction, action);
-            return;
-        }
+    public void execAsync(String sql, SQLStatementAction statementAction, SQLAction action) {
+        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            PreparedStatement st = null;
+            ResultSet res = null;
+            try {
+                st = getConnection().prepareStatement(sql);
 
+                statementAction.callback(st);
+
+                res = st.executeQuery();
+
+                ResultSet finalRes = res;
+                asyncExecFinal(action, st, res, finalRes);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void asyncExecFinal(SQLAction action, PreparedStatement st, ResultSet res, ResultSet finalRes) {
+        Bukkit.getScheduler().runTask(Main.getInstance(), () -> {
+            try {
+                action.callback(finalRes);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                closeQuery(st, res);
+            }
+        });
+    }
+
+    public void exec(String sql, SQLStatementAction statementAction, SQLAction action) {
         PreparedStatement st = null;
         ResultSet res = null;
         try {
             st = getConnection().prepareStatement(sql);
 
             statementAction.callback(st);
-
-            if(SQL.isTesting == true) {
-                Bukkit.getLogger().info(st.toString());
-            }
-
             res = st.executeQuery();
 
             action.callback(res);
@@ -177,6 +204,49 @@ public class SQL {
         } finally {
             closeQuery(st, res);
         }
+    }
+
+    public void execAsyncTest(String sql, SQLStatementAction statementAction, SQLAction action) {
+        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            PreparedStatement stL = null;
+            PreparedStatement stR = null;
+
+            ResultSet resL = null;
+            ResultSet resR = null;
+
+            logQuery(sql);
+
+            try {
+
+                Connection lc = getLocalConnection();
+                Connection rc = getRemoteConnection();
+
+                ResultSet resData = null;
+
+                if (rc != null) {
+                    stR = rc.prepareStatement(sql);
+                    statementAction.callback(stR);
+                    resR = stR.executeQuery();
+                    resData = resR;
+                }
+
+                if (lc != null) {
+                    stL = lc.prepareStatement(sql);
+                    statementAction.callback(stL);
+                    resL = stL.executeQuery();
+                    resData = resL;
+                }
+
+                ResultSet finalRes = resData;
+                PreparedStatement finalStL = stL;
+                PreparedStatement finalStR = stR;
+                ResultSet finalResL = resL;
+                ResultSet finalResR = resR;
+                asyncExecFinalAdvanced(action, finalStL, finalStR, finalResL, finalResR, finalRes);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void execTest(String sql, SQLStatementAction statementAction, SQLAction action) {
@@ -195,14 +265,14 @@ public class SQL {
 
             ResultSet resData = null;
 
-            if(rc != null) {
+            if (rc != null) {
                 stR = rc.prepareStatement(sql);
                 statementAction.callback(stR);
                 resR = stR.executeQuery();
                 resData = resR;
             }
 
-            if(lc != null) {
+            if (lc != null) {
                 stL = lc.prepareStatement(sql);
                 statementAction.callback(stL);
                 resL = stL.executeQuery();
@@ -215,6 +285,55 @@ public class SQL {
         } finally {
             closeQuery(stL, stR, resL, resR);
         }
+    }
+
+    public void execAsyncTest(String sql, SQLAction action) {
+        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            PreparedStatement stL = null;
+            PreparedStatement stR = null;
+
+            ResultSet resL = null;
+            ResultSet resR = null;
+
+            logQuery(sql);
+
+            try {
+
+                Connection lc = getLocalConnection();
+                Connection rc = getRemoteConnection();
+
+                ResultSet resData = null;
+
+                if (rc != null) {
+                    stR = rc.prepareStatement(sql);
+                    resR = stR.executeQuery();
+                    resData = resR;
+                }
+
+                if (lc != null) {
+                    stL = lc.prepareStatement(sql);
+                    resL = stL.executeQuery();
+                    resData = resL;
+                }
+
+                ResultSet finalRes = resData;
+                asyncExecFinalAdvanced(action, stL, stR, resL, resR, finalRes);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void asyncExecFinalAdvanced(SQLAction action, PreparedStatement stL, PreparedStatement stR, ResultSet resL, ResultSet resR, ResultSet finalRes) {
+        Bukkit.getScheduler().runTask(Main.getInstance(), () -> {
+            try {
+                action.callback(finalRes);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                closeQuery(stL, stR, resL, resR);
+            }
+        });
     }
 
     public void execTest(String sql, SQLAction action) {
@@ -233,13 +352,13 @@ public class SQL {
 
             ResultSet resData = null;
 
-            if(rc != null) {
+            if (rc != null) {
                 stR = rc.prepareStatement(sql);
                 resR = stR.executeQuery();
                 resData = resR;
             }
 
-            if(lc != null) {
+            if (lc != null) {
                 stL = lc.prepareStatement(sql);
                 resL = stL.executeQuery();
                 resData = resL;
@@ -253,31 +372,37 @@ public class SQL {
         }
     }
 
-    public boolean run(String sql) {
-        if(SQL.isTesting == true) {
-            return runTest(sql);
-        }
+    public interface SQLBoolAction {
+        void callback(boolean success);
+    }
 
+    private void runHelper(String sql, SQLBoolAction action) {
         PreparedStatement st = null;
 
         try {
             st = getConnection().prepareStatement(sql);
 
-            return st.execute();
+            Boolean wasSuccess = st.execute();
+
+            if(action != null) {
+                action.callback(wasSuccess);
+            }
         } catch (Exception e) {
+            if(action != null) {
+                action.callback(false);
+            }
+
             e.printStackTrace();
         } finally {
             closeQuery(st);
         }
-
-        return false;
     }
 
-    public boolean run(String sql, SQLStatementAction statementAction) {
-        if(SQL.isTesting == true) {
-            return runTest(sql, statementAction);
-        }
+    private void runHelper(String sql) {
+        runHelper(sql, null);
+    }
 
+    private void runAdvancedHelper(String sql, SQLStatementAction statementAction, SQLBoolAction action) {
         PreparedStatement st = null;
 
         try {
@@ -285,82 +410,137 @@ public class SQL {
 
             statementAction.callback(st);
 
-            return st.execute();
+            Boolean wasSuccess = st.execute();
+
+            if(action != null) {
+                action.callback(wasSuccess);
+            }
         } catch (Exception e) {
+            if(action != null) {
+                action.callback(false);
+            }
+
             e.printStackTrace();
         } finally {
             closeQuery(st);
         }
-
-        return false;
     }
 
-    private boolean runTest(String sql) {
+    private void runAdvancedHelper(String sql, SQLStatementAction statementAction) {
+        runAdvancedHelper(sql, statementAction, null);
+    }
+
+    public void runAsync(String sql) {
+        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            runHelper(sql);
+        });
+    }
+
+    public void runAsync(String sql, SQLBoolAction action) {
+        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            runHelper(sql, action);
+        });
+    }
+
+    public void run(String sql) {
+        runHelper(sql);
+    }
+
+    public void runAsync(String sql, SQLStatementAction statementAction) {
+        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            runAdvancedHelper(sql, statementAction);
+        });
+    }
+
+    public void runAsync(String sql, SQLStatementAction statementAction, SQLBoolAction action) {
+        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            runAdvancedHelper(sql, statementAction, action);
+        });
+    }
+
+    public void run(String sql, SQLStatementAction statementAction) {
+        runAdvancedHelper(sql, statementAction);
+    }
+
+    private void runAsyncTest(String sql) {
+        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            logQuery(sql);
+
+            runTestHelper(sql);
+        });
+    }
+
+    private void runTest(String sql) {
+        logQuery(sql);
+        runTestHelper(sql);
+    }
+
+    private void runTestHelper(String sql) {
         PreparedStatement stL = null;
         PreparedStatement stR = null;
-
-        logQuery(sql);
 
         try {
             Connection lc = getLocalConnection();
             Connection rc = getRemoteConnection();
 
-            boolean wasSuccess = false;
-
-            if(rc != null) {
+            if (rc != null) {
                 stR = rc.prepareStatement(sql);
-                wasSuccess = stR.execute();
+                stR.execute();
             }
 
 
-            if(lc != null) {
+            if (lc != null) {
                 stL = lc.prepareStatement(sql);
-                wasSuccess = stL.execute();
+                stL.execute();
             }
-
-            return wasSuccess;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             closeQuery(stL, stR);
         }
-
-        return false;
     }
 
-    private boolean runTest(String sql, SQLStatementAction statementAction) {
-        PreparedStatement stL = null;
-        PreparedStatement stR = null;
+    private void runAsyncTest(String sql, SQLStatementAction statementAction) {
+        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+
+            logQuery(sql);
+
+            runTestAdvancedHelper(sql, statementAction);
+        });
+    }
+
+    private void runTest(String sql, SQLStatementAction statementAction) {
 
         logQuery(sql);
+
+        runTestAdvancedHelper(sql, statementAction);
+    }
+
+    private void runTestAdvancedHelper(String sql, SQLStatementAction statementAction) {
+        PreparedStatement stL = null;
+        PreparedStatement stR = null;
 
         try {
             Connection lc = getLocalConnection();
             Connection rc = getRemoteConnection();
 
-            boolean wasSuccess = false;
-
-            if(rc != null) {
+            if (rc != null) {
                 stR = rc.prepareStatement(sql);
                 statementAction.callback(stR);
-                wasSuccess = stR.execute();
+                stR.execute();
             }
 
 
-            if(lc != null) {
+            if (lc != null) {
                 stL = lc.prepareStatement(sql);
                 statementAction.callback(stL);
-                wasSuccess = stL.execute();
+                stL.execute();
             }
-
-            return wasSuccess;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             closeQuery(stL, stR);
         }
-
-        return false;
     }
 
     private void logQuery(String q) {
@@ -447,7 +627,11 @@ public class SQL {
         String query = getInitQuery(usingRemote);
         if(query != null) {
             try {
-                run(query);
+                String[] queries = query.split(";");
+
+                for(String queryToExec : queries) {
+                    run(queryToExec);
+                }
             } catch (Exception exp) {
                 exp.printStackTrace();
             }

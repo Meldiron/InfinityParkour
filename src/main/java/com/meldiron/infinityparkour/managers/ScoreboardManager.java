@@ -49,7 +49,7 @@ public class ScoreboardManager {
     }
 
     public void updateScore(Player p, Integer score) {
-        sql.exec(
+        sql.execAsync(
                 "SELECT score FROM scoreboard WHERE uuid = ?",
                 st -> {
                     st.setString(1, p.getUniqueId().toString());
@@ -61,107 +61,97 @@ public class ScoreboardManager {
                         Integer oldScore = res.getInt("score");
 
                         if(score > oldScore) {
-                            sql.run(
+                            sql.runAsync(
                                     "UPDATE scoreboard SET score = ?, username = ? WHERE uuid = ?",
                                     st -> {
                                         st.setInt(1, score);
                                         st.setString(2, p.getName());
                                         st.setString(3, p.getUniqueId().toString());
+                                    },
+                                    resU -> {
+                                        InfinityParkourGUI.refresh();
+                                        p.sendMessage(main.color(true, main.lang.getString("chat.newRecord")));
                                     }
                             );
-
-                            InfinityParkourGUI.refresh();
-                            p.sendMessage(main.color(true, main.lang.getString("chat.newRecord")));
-
                         }
-
                     } else {
                         // INSERT
 
-                        sql.run(
+                        sql.runAsync(
                                 "INSERT INTO scoreboard (score, username, uuid) VALUES (?,?,?)",
                                 st -> {
                                     st.setInt(1, score);
                                     st.setString(2, p.getName());
                                     st.setString(3, p.getUniqueId().toString());
+                                },
+                                resI -> {
+                                    InfinityParkourGUI.refresh();
+                                    p.sendMessage(main.color(true, main.lang.getString("chat.newRecord")));
                                 }
                         );
-
-                        InfinityParkourGUI.refresh();
-                        p.sendMessage(main.color(true, main.lang.getString("chat.newRecord")));
-
                     }
                 }
         );
     }
 
-    public HashMap<String, Integer> getStatsByPlayer(Player p) {
+    public interface PlayerStatsCb {
+        void callback(HashMap<String, Integer> res);
+    }
+
+    public void getStatsByPlayer(Player p, PlayerStatsCb cb) {
         try {
             HashMap<String, Integer> stats = new HashMap<>();
 
-            final boolean[] isEmpty = {false};
-
-            sql.exec(
+            sql.execAsync(
                     "SELECT score FROM scoreboard WHERE uuid = ?",
                     st -> {
                         st.setString(1, p.getUniqueId().toString());
                     },
                     res -> {
-                        if(!res.next()) {
-                            isEmpty[0] = true;
+                        if (!res.next()) {
+                            cb.callback(null);
                             return;
                         }
 
                         stats.put("score", res.getInt("score"));
+
+                        sql.execAsync(
+                                "SELECT COUNT(*) AS place FROM scoreboard WHERE score >= (SELECT score FROM scoreboard WHERE uuid = ?)",
+                                st2 -> {
+                                    st2.setString(1, p.getUniqueId().toString());
+                                },
+                                res2 -> {
+                                    if (!res2.next()) {
+                                        cb.callback(null);
+                                        return;
+                                    }
+
+                                    stats.put("place", res2.getInt("place"));
+
+                                    sql.execAsync("SELECT COUNT(*) AS total FROM scoreboard", res3 -> {
+                                        if (!res3.next()) {
+                                            cb.callback(null);
+                                            return;
+                                        }
+
+                                        stats.put("total", res3.getInt("total"));
+
+                                        double percentile = stats.get("place") * 100.0 / stats.get("total");
+
+                                        stats.put("topPerc", (int) percentile);
+
+                                        cb.callback(stats);
+                                    });
+
+                                });
                     });
-
-            if(isEmpty[0] == true) {
-                return null;
-            }
-
-            sql.exec(
-                    "SELECT COUNT(*) AS place FROM scoreboard WHERE score >= (SELECT score FROM scoreboard WHERE uuid = ?)",
-                    st -> {
-                        st.setString(1, p.getUniqueId().toString());
-                    },
-                    res -> {
-                        if(!res.next()) {
-                            isEmpty[0] = true;
-                            return;
-                        }
-
-                        stats.put("place", res.getInt("place"));
-                    });
-
-            if(isEmpty[0] == true) {
-                return null;
-            }
-
-            sql.exec("SELECT COUNT(*) AS total FROM scoreboard", res -> {
-                if(!res.next()) {
-                    isEmpty[0] = true;
-                    return;
-                }
-
-                stats.put("total", res.getInt("total"));
-            });
-
-            if(isEmpty[0] == true) {
-                return null;
-            }
-
-            double percentile =  stats.get("place") * 100.0 / stats.get("total");
-
-            stats.put("topPerc", (int) percentile);
-
-            return stats;
-        }
-        catch (NullPointerException exp) {
-            return null;
-        }
-        catch (Exception e) {
+        } catch (NullPointerException exp) {
+            cb.callback(null);
+            return;
+        } catch (Exception e) {
+            cb.callback(null);
             e.printStackTrace();
-            return null;
+            return;
         }
     }
 }
