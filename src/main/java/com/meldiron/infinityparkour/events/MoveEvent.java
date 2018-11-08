@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.util.Vector;
 
 public class MoveEvent implements Listener {
     @EventHandler
@@ -13,10 +14,11 @@ public class MoveEvent implements Listener {
     {
         Location pLoc = e.getPlayer().getLocation();
 
-        Location underPlayer = new Location(pLoc.getWorld(), pLoc.getX(), pLoc.getY() - 1, pLoc.getZ());
+        Location underPlayer = pLoc.clone();
         underPlayer.setX(Math.floor(underPlayer.getX()));
-        underPlayer.setY(Math.floor(underPlayer.getY()));
+        underPlayer.setY(Math.floor(underPlayer.getY()) - 1);
         underPlayer.setZ(Math.floor(underPlayer.getZ()));
+
 
         GameManager gm = GameManager.getInstance();
 

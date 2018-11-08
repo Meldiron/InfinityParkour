@@ -25,7 +25,7 @@ chat:
   - 'Unstoppable! Score: &f{{score}}'
 helpCommand:
   - '&7--------------- &6&lInfinity Parkour &7---------------'
-  - ' &6/infp &7- &fOpen Infinity parkoru GUI &7(infinityparkour.opengui)'
+  - ' &6/infp &7- &fOpen Infinity parkorur GUI &7(infinityparkour.opengui)'
   - ' &6/infp play &7- &fAttempt to join arena &7(infinityparkour.play)'
   - ' &6/infp help &7- &fShow this help'
   - ' &6/infp reload&7- &fReload Infinity parkour plugin (do this when you edit config files) &7(infinityparkour.reload)'

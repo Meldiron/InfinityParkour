@@ -4,6 +4,8 @@ import com.meldiron.infinityparkour.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -56,7 +58,7 @@ public class GameManager {
     public Game getGameByLoc(Location loc) {
         Game g = null;
         for (Game game : playerToGame.values()) {
-            if(game.block2.equals(loc)) {
+            if(game.block2.getBlockX() == loc.getBlockX() && game.block2.getBlockY() == loc.getBlockY() && game.block2.getBlockZ() == loc.getBlockZ()) {
                 g = game;
                 break;
             }
@@ -91,10 +93,10 @@ public class GameManager {
     private void loadFreePoses() {
         YamlConfiguration config = main.config;
 
-        for(Map<?, ?> pos : config.getMapList("startPositions")) {
-            float x = Integer.parseInt(pos.get("x").toString());
-            float y = Integer.parseInt(pos.get("y").toString());
-            float z = Integer.parseInt(pos.get("z").toString());
+        for(Map<?,?> pos : config.getMapList("startPositions")) {
+            float x = Float.parseFloat(pos.get("x").toString());
+            float y = Float.parseFloat(pos.get("y").toString());
+            float z = Float.parseFloat(pos.get("z").toString());
             String world = pos.get("world").toString();
 
             Location loc = new Location(Bukkit.getWorld(world), x,y,z);
@@ -110,21 +112,24 @@ public class GameManager {
             freePoses.add(loc);
 
             if(pos.get("useCustomEndPosition") != null && Boolean.parseBoolean(pos.get("useCustomEndPosition").toString()) == true) {
-                float endX = Integer.parseInt(pos.get("endPos.x").toString());
-                float endY = Integer.parseInt(pos.get("endPos.y").toString());
-                float endZ = Integer.parseInt(pos.get("endPos.z").toString());
-                String endWorld = pos.get("endPos.world").toString();
+
+
+                Map<?, ?> endPosCfg = (Map<?, ?>) pos.get("endPos");
+
+                float endX = Float.parseFloat(endPosCfg.get("x").toString());
+                float endY = Float.parseFloat(endPosCfg.get("y").toString());
+                float endZ = Float.parseFloat(endPosCfg.get("z").toString());
+                String endWorld = endPosCfg.get("world").toString();
 
                 Location endLoc = new Location(Bukkit.getWorld(endWorld), endX, endY, endZ);
 
-                if(pos.get("endPos.pitch") != null) {
-                    endLoc.setPitch(Float.parseFloat(pos.get("endPos.pitch").toString()));
-                }
+                if(endPosCfg.get("pitch") != null) {
+                    endLoc.setPitch(Float.parseFloat(endPosCfg.get("pitch").toString()));
+            }
 
-                if(pos.get("endPos.yaw") != null) {
-                    endLoc.setYaw(Float.parseFloat(pos.get("endPos.yaw").toString()));
-                }
-
+            if(endPosCfg.get("yaw") != null) {
+                endLoc.setYaw(Float.parseFloat(endPosCfg.get("yaw").toString()));
+            }
                 freePosToEndPos.put(loc, endLoc);
             }
         }

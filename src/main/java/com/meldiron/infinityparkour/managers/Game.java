@@ -8,7 +8,10 @@ import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.List;
 import java.util.Random;
@@ -25,8 +28,8 @@ public class Game {
     public Location block1;
     public Location block2;
 
-    private Material loc1OldBlock;
-    private Material loc2OldBlock;
+    private BlockState loc1OldBlock;
+    private BlockState loc2OldBlock;
 
     public Game(Player p, Location middleLoc) {
         gm = GameManager.getInstance();
@@ -46,21 +49,25 @@ public class Game {
     }
 
     public void endGame() {
-        if(loc1OldBlock != null) {
-            block1.getBlock().setType(loc1OldBlock);
-        } else {
-            block1.getBlock().setType(Material.AIR);
-        }
 
-        if(loc2OldBlock != null) {
-            block2.getBlock().setType(loc2OldBlock);
-        } else {
-            block2.getBlock().setType(Material.AIR);
-        }
+        setBlock(loc1OldBlock, block1);
+
+        setBlock(loc2OldBlock, block2);
 
         ScoreboardManager.getInstance().updateScore(p, score);
 
         gm.runFinishCommands(p, score);
+    }
+
+    private void setBlock(BlockState loc2OldBlock, Location block2) {
+        if(loc2OldBlock != null) {
+            BlockState bs = block2.getBlock().getState();
+            bs.setType(loc2OldBlock.getType());
+            bs.setData(loc2OldBlock.getData());
+            bs.update(true);
+        } else {
+            block2.getBlock().setType(Material.AIR);
+        }
     }
 
     public void addScore() {
@@ -74,8 +81,8 @@ public class Game {
     }
 
     public void startGame() {
-        Location underPlayer = new Location(middleLoc.getWorld(), middleLoc.getX(), middleLoc.getY() - 1, middleLoc.getZ());
-        Location locToTeleportTo =  new Location(middleLoc.getWorld(), middleLoc.getX() + 0.5f, middleLoc.getY() + 0.5f, middleLoc.getZ() + 0.5f);
+        Location underPlayer = middleLoc.clone().subtract(new Vector(0,1,0));
+        Location locToTeleportTo =  middleLoc.clone().add(new Vector(0.5, 0.5, 0.5));
 
         spawnAtPos(underPlayer);
         spawnAtRandomPos(underPlayer);
@@ -86,14 +93,11 @@ public class Game {
 
     public void spawnAtPos(Location loc) {
         if(block1 != null) {
-            if(loc1OldBlock != null) {
-                block1.getBlock().setType(loc1OldBlock);
-            } else {
-                block1.getBlock().setType(Material.AIR);
-            }
+            setBlock(loc1OldBlock, block1);
         }
 
         if(block2 != null) {
+            block1 = block2.clone();
             loc1OldBlock = loc2OldBlock;
         } else {
             block1 = null;
@@ -102,11 +106,7 @@ public class Game {
 
         block2 = loc.clone();
 
-        System.out.println(loc);
-        System.out.println(loc.getBlock());
-        System.out.println(loc.getBlock().getType());
-
-        loc2OldBlock = loc.getBlock().getType();
+        loc2OldBlock = loc.getBlock().getState();
 
         loc.getBlock().setType(gm.getRandomParkourBlock());
 
@@ -169,7 +169,11 @@ public class Game {
             }
         }
 
-        Location newBlockLoc = new Location(middleLoc.getWorld(), 0,0,0);
+        Location newBlockLoc = middleLoc.clone();
+        newBlockLoc.setX(0);
+        newBlockLoc.setY(0);
+        newBlockLoc.setZ(0);
+
         int howFar;
         int lookDir = 0;
 
