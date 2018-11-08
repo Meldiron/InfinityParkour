@@ -113,7 +113,7 @@ public class Game {
         Location particleLoc = loc.clone();
         particleLoc.add(0,1,0);
 
-       if(Main.getInstance().getConfig().getBoolean("particle.show") == true) {
+       if(Main.getInstance().config.getBoolean("particle.show") == true) {
             loc.getWorld().playEffect(particleLoc, Effect.SMOKE, Integer.MAX_VALUE);
         }
     }

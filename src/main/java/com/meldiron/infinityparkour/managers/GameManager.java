@@ -223,7 +223,7 @@ public class GameManager {
 
     public void runFinishCommands(Player p, Integer score) {
         if(Main.getInstance().config.getBoolean("runFinishCommands") == true) {
-            List<Map<?, ?>> cmds = Main.getInstance().getConfig().getMapList("finishCommands");
+            List<Map<?, ?>> cmds = Main.getInstance().config.getMapList("finishCommands");
 
             for(Map<?, ?> cmdData : cmds) {
                 Integer minScore = Integer.MIN_VALUE;
@@ -259,7 +259,7 @@ public class GameManager {
     }
 
     public Material getRandomParkourBlock() {
-        List<String> blocks = Main.getInstance().getConfig().getStringList("parkourBlocks");
+        List<String> blocks = Main.getInstance().config.getStringList("parkourBlocks");
         Random rand = new Random();
 
         String block = blocks.get(rand.nextInt(blocks.size()));
