@@ -35,6 +35,8 @@ permissions:
   leaveArena: 'infinityparkour.leavearena'
   playGame: 'infinityparkour.play'
   reload: 'infinityparkour.reload'
+  statsCmd: 'infinityparkour.statscmd'
+  topCmd: 'infinityparkour.topcmd'
 mysql:
   enabled: false
   host: 'localhost'

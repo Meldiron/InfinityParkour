@@ -1,3 +1,9 @@
+scoreboardRecordInChat:
+  prefix:
+    - '&7--------------- &a&lSCOREBOARD &7---------------'
+  record: '&f{{index}}. &9{{playerName}} &7({{score}})'
+  suffix:
+    - '&7-------------------------------------------'
 chat:
   prefix: '&6&lI&f&lnf&6&lP&f&larkour &8>> &7'
   wrongUsage: 'Wrong usage. To get help type &9/infp help'
@@ -5,13 +11,15 @@ chat:
   noPermissionLeave: 'You need permission &c{{permissionName}} &7to be able to leave arena'
   noPermissionPlay: 'You need permission &c{{permissionName}} &7to be able to play'
   noPermissionReload: 'You need permission &c{{permissionName}} &7to be reload infinity parkour'
+  noPermissionTop: 'You need permission &c{{permissionName}} &7to be use top command'
+  noPermissionStats: 'You need permission &c{{permissionName}} &7to use stats command'
   reloadSuccess: 'Infinity parkour successfully reloaded'
   cantTeleport: 'Can''t teleport you out of the arena. Please teleport out!'
   areaLeave: 'You have &cleft &7the arena.'
   meaninglessLeave: 'You can''t leave the parkour because you are not in the arena'
   arenaStart: 'Ready. Steady. &aGo'
   allArenasUsed: 'There are &c0 &7available arenas at the moment. Wait until someone has finish their game and try again.'
-  chatStatsError: 'Can''t load your &cstats&7. You haven't played infinity parkour yet, have you?'
+  chatStatsError: 'Can''t load your &cstats&7. You haven''t played infinity parkour yet, have you?'
   chatStats: 'Your best score is &6{{playerScore}}&7, your place is &6{{playerPlace}}&7/&6{{totalPlaces}}&7 and you are TOP &6{{percentile}}&7%'
   alreadyInGame: 'You are already in arena. To leave, type &c/infp leave'
   newRecord: 'You have beat your previous record!!!'
