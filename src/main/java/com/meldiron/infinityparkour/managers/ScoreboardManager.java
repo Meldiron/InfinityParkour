@@ -31,7 +31,7 @@ public class ScoreboardManager {
         HashMap<String, Integer> scoreboard = new HashMap<>();
 
         sql.exec(
-                "SELECT score, username FROM scoreboard LIMIT ?",
+                "SELECT score, username FROM scoreboard ORDER BY score DESC LIMIT ?",
                 st -> {
                     st.setInt(1, 5);
                 },
